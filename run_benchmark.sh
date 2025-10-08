@@ -67,10 +67,11 @@ mv $TMP_PGGB$FASTA.*.smooth.final.gfa $PGGB_GFA
 ######################## Prep MC files ########################
 
 mkdir ".seq/"
+PPATH=$1"_pipeline.txt"
 awk 'BEGIN{RS=">";FS="\n"} NR>1{fnme=".seq/"$1".fa"; print ">" $0 > fnme; close(fnme);}' $FASTA
 REPATH=$(cat <<END
 from os import listdir
-with open($1"_pipeline.txt","w",encoding='utf-8') as writer:
+with open("$PPATH","w",encoding='utf-8') as writer:
     for seq in listdir(".seq/"):
         writer.write(f"{seq[:-3]}\t.seq/{seq}")
 END
