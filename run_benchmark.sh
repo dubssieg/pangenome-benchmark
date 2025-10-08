@@ -36,7 +36,7 @@ COMP_MC=$1.ms.mc.comp.tsv
 conda activate $ENV_MS
 cd MSpangepop/
 #./mspangepop run --unlock
-./mspangepop run 
+./mspangepop local-run 
 cd ..
 conda deactivate
 mv "MSpangepop/results/test_panmictic/03_graph/chr_1/test_panmictic_chr_1_graph.gfa" $MS_GFA
