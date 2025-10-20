@@ -39,21 +39,48 @@ cd MSpangepop/
 ./mspangepop local-run 
 cd ..
 conda deactivate
-mv "MSpangepop/results/test_panmictic/03_graph/chr_1/test_panmictic_chr_1_graph.gfa" $MS_GFA
+mv "MSpangepop/results/*/03_graph/chr_1//fasta/*.fasta.gz" $1_fastas/
 
 ######################## Extract the fasta from the simulated graph ########################
 
-if [ ! -f rs-pancat-paths ]; then
-    wget https://github.com/dubssieg/rs-pancat-paths/releases/download/0.1.2/rs-pancat-paths
-    chmod +x rs-pancat-paths
-fi
-./rs-pancat-paths $MS_GFA reconstruct > $FASTA
+#if [ ! -f rs-pancat-paths ]; then
+#    wget https://github.com/dubssieg/rs-pancat-paths/releases/download/0.1.2/rs-pancat-paths
+#    chmod +x rs-pancat-paths
+#fi
+#./rs-pancat-paths $MS_GFA reconstruct > $FASTA
 
 ######################## Index fasta file ########################
 
 conda activate $ENV_SAMTOOLS
-samtools faidx $FASTA
+for f in $1"_fastas/*.gz"
+do
+    gzip -d $1"_fastas/"$f
+done
+
+for f in $1"_fastas/*.fasta"
+do
+    mkdir $1"_fastas/"$f"_mc" # Creating a folder for MC
+    awk -v output_dir="${$1"_fastas/"$f"_mc"}" '
+    /^>/ {
+        seq_id = substr($0, 2);
+        if (index(seq_id, " ")) {
+            seq_id = substr(seq_id, 1, index(seq_id, " ") - 1); 
+        }
+        gsub(/[^a-zA-Z0-9_-]/, "_", seq_id);
+        file = sprintf("%s/%s.fasta", output_dir, seq_id);
+        print $0 > file;
+        next;
+    }
+    { print >> file; }
+    ' "${$1"_fastas/"$f}"
+    mkdir $1"_fastas/"$f"_pggb" # Creating a folder for PGGB
+    mv $1"_fastas/"$f $1"_fastas/"$f"_pggb/"$f
+    samtools faidx $1"_fastas/"$f"_pggb/"$f # Index file for PGGB
+done
+
 conda deactivate
+
+exit 1
 
 ######################## Creating the PGGB graph ########################
 conda activate $ENV_PGGB
