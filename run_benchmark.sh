@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=bmMSpp
 #SBATCH --constraint avx2
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=128G
 
 
 ###################################################################
