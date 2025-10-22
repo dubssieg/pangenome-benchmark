@@ -39,7 +39,7 @@ cd MSpangepop/
 ./mspangepop local-run 
 cd ..
 conda deactivate
-mv "MSpangepop/results/*/03_graph/chr_1//fasta/*.fasta.gz" $1_fastas/
+mv "MSpangepop/results/*/03_graph/chr_1/fasta/*.fasta.gz" $1_fastas/
 
 ######################## Extract the fasta from the simulated graph ########################
 
