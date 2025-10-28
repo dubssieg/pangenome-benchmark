@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=bmMSpp
 #SBATCH --constraint avx2
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=128G
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
 
 
 ###################################################################
@@ -28,6 +28,9 @@ MC_GFA=$1.mc.gfa
 MS_GFA=$1.mspangepop.gfa
 COMP_PGGB=$1.ms.pggb.comp.tsv
 COMP_MC=$1.ms.mc.comp.tsv
+PGGB_VCF=$1.pggb.vcf
+MC_VCF=$1.mc.vcf
+MS_VCF=$1.mspangepop.vcf
 
 . /local/env/envconda.sh
 
@@ -124,11 +127,16 @@ $ENV_CACTUS cactus-graphmap-join $JB --vg $OUT.vg --outDir $TMP_MC --outName "fi
 [ -f $1"_pipeline.txt" ] && rm $1"_pipeline.txt"
 GRAPH=$TMP_MC"final.full.gfa"
 gzip -d $GRAPH".gz"
-conda activate $ENV_VG
-vg convert -g -f -W $GRAPH > $MC_GFA
-conda deactivate
 [ -d $TMP_MC ] && rm -r $TMP_MC
 
+######################## Convert and VCFs ########################
+
+conda activate $ENV_VG
+vg convert -g -f -W $GRAPH > $MC_GFA # Get as GFA1.0 MC graph
+vg deconstruct -a $MS_GFA -p $NAME_REF > $MS_VCF
+vg deconstruct -a $PGGB_GFA -p $NAME_REF > $PGGB_VCF
+vg deconstruct -a $MC_GFA -p $NAME_REF > $MC_VCF
+conda deactivate
 
 ######################## Compare the graphs ########################
 
