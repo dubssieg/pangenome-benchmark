@@ -81,17 +81,17 @@ do
     mkdir $d/.mc # Creating a folder for MC
 done
 
-exit 1
-
 ######################## Creating the PGGB graph ########################
-conda activate $ENV_PGGB
-TMP_PGGB="."$1"pggb_output/"
-mkdir $TMP_PGGB
-pggb -i $FASTA -o $TMP_PGGB -n 6 -t 8 -p 90 -s 5k 
-conda deactivate
-mv $TMP_PGGB$FASTA.*.smooth.final.gfa $PGGB_GFA
-[ -d $TMP_PGGB ] && rm -r $TMP_PGGB
 
+conda activate $ENV_PGGB
+for d in $1/*
+do
+    pggb -i $d"/multifasta"$FASTA -o $d"/.pggb" -n 6 -t 8 -p 90 -s 5k 
+    conda deactivate
+    mv $d"/.pggb"*.smooth.final.gfa $PGGB_GFA
+    [ -d $TMP_PGGB ] && rm -r $TMP_PGGB
+done
+exit 1
 ######################## Prep MC files ########################
 
 mkdir ".seq/"
