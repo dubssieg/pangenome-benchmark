@@ -53,9 +53,9 @@ do
     d="${d##*/}"
     mkdir $1/$d
     gzip -d MSpangepop/results/$d/03_graph/chr_1/fasta/*
-    mv MSpangepop/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
+    cp MSpangepop/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
     samtools faidx $1/$d/multifasta$FASTA # Index file for PGGB
-    mv MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
+    cp MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
 done
 conda deactivate
 
@@ -64,7 +64,7 @@ conda deactivate
 for d in $1/*
 do
     mkdir $d/singlefasta # Creating a folder for MC
-    awk -v output_dir="${$d"/singlefasta"}" '
+    awk -v output_dir="${d"/singlefasta"}" '
     /^>/ {
         seq_id = substr($0, 2);
         if (index(seq_id, " ")) {
