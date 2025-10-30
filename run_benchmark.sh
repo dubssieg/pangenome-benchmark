@@ -101,7 +101,7 @@ do
 REPATH=$(cat <<END
 from os import listdir
 with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
-    for seq in listdir(".seq/"):
+    for seq in listdir("$d/singlefasta/"):
         writer.write(f"{seq[:-3]}\t.seq/{seq}")
 END
 )
