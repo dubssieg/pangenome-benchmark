@@ -102,7 +102,9 @@ REPATH=$(cat <<END
 from os import listdir
 with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
     for seq in listdir("$d/singlefasta/"):
-        writer.write(f"{seq[:-6]}\t$d/singlefasta/{seq}\n")
+        with open(f"$d/singlefasta/{seq}") as f:
+            header = f.readline().strip()[1:]
+        writer.write(f"{header}\t$d/singlefasta/{seq}\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
