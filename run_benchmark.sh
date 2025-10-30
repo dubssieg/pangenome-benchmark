@@ -106,6 +106,7 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
 END
 )
 FILE="$(python3 -c "$REPATH")"
+sort -o $d/.mc/pipeline.txt{,}
 done
 
 ######################## Creating the MC graph ########################
@@ -119,12 +120,12 @@ JB=$d/.mc/.js/
 TMP_MC=$d/.mc/tmp/
 OUT=$TMP_MC"graph"
 [ -d $JB ] && rm -r $JB
-mkdir $JB $TMP_MC
+mkdir $TMP_MC
 $ENV_CACTUS cactus-minigraph $JB $d/.mc/pipeline.txt $OUT.gfa --reference $NAME_REF
 $ENV_CACTUS cactus-graphmap $JB $d/.mc/pipeline.txt $OUT.gfa $OUT.paf  --reference $NAME_REF --outputFasta $OUT.sv.gfa.fa.gz
 $ENV_CACTUS cactus-align $JB $d/.mc/pipeline.txt $OUT.paf $OUT.hal --pangenome --outGFA --outVG --reference $NAME_REF --workDir $TMP_MC
 $ENV_CACTUS cactus-graphmap-join $JB --vg $OUT.vg --outDir $TMP_MC --outName "final" --reference $NAME_REF --clip 0 --filter 0
-gzip -d $GRAPH".gz"
+gzip -d $d"/.mc/tmp/final.full.gfa.gz"
 done
 
 ######################## Convert and VCFs ########################
