@@ -15,7 +15,7 @@
 
 #### Test cleaning
 
-rm -rf $1
+rm -r $1
 
 #### Envs
 
@@ -95,28 +95,29 @@ do
     mv $d"/.pggb/"*.smooth.final.gfa $d"/graph"$PGGB_GFA
     [ -d $TMP_PGGB ] && rm -r $TMP_PGGB
 done
-exit 1
 ######################## Prep MC files ########################
 
-mkdir ".seq/"
-PPATH=$1"_pipeline.txt"
-awk 'BEGIN{RS=">";FS="\n"} NR>1{fnme=".seq/"$1".fa"; print ">" $0 > fnme; close(fnme);}' $FASTA
+for d in $1/*
+do
 REPATH=$(cat <<END
 from os import listdir
-with open("$PPATH","w",encoding='utf-8') as writer:
+with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
     for seq in listdir(".seq/"):
         writer.write(f"{seq[:-3]}\t.seq/{seq}")
 END
 )
 FILE="$(python3 -c "$REPATH")"
+done
 
 ######################## Creating the MC graph ########################
 
+for d in $1/*
+do
 # Getting reference name (first line in file before \t)
-echo "$(head -n 1 $1"_pipeline.txt")" | cut -d$'\t' -f1 > $1"_tempfile.txt"
-NAME_REF=`cat $1"_tempfile.txt"`
-JB=".js/"
-TMP_MC="."$1"cactus_output/"
+echo "$(head -n 1 $1"_pipeline.txt")" | cut -d$'\t' -f1 > $d/.mc/tempfile.txt
+NAME_REF=`cat $d/.mc/tempfile.txt`
+JB=$d/.mc/.js/
+TMP_MC=$d/.mc/tmp/
 OUT=$TMP_MC"graph"
 [ -d $JB ] && rm -r $JB
 mkdir $JB $TMP_MC
@@ -125,13 +126,15 @@ $ENV_CACTUS cactus-graphmap $JB $1"_pipeline.txt" $OUT.gfa $OUT.paf  --reference
 $ENV_CACTUS cactus-align $JB $1"_pipeline.txt" $OUT.paf $OUT.hal --pangenome --outGFA --outVG --reference $NAME_REF --workDir $TMP_MC
 $ENV_CACTUS cactus-graphmap-join $JB --vg $OUT.vg --outDir $TMP_MC --outName "final" --reference $NAME_REF --clip 0 --filter 0
 [ -d $JB ] && rm -r $JB
-[ -f $1"_tempfile.txt" ] && rm $1"_tempfile.txt"
-[ -f $1"_pipeline.txt" ] && rm $1"_pipeline.txt"
+[ -f $d"/.mc/tempfile.txt" ] && rm $d/.mc/tempfile.txt
+[ -f $1"_pipeline.txt" ] && rm $d/.mc/pipeline.txt
 GRAPH=$TMP_MC"final.full.gfa"
 gzip -d $GRAPH".gz"
 [ -d $TMP_MC ] && rm -r $TMP_MC
+done
 
 ######################## Convert and VCFs ########################
+exit 1
 
 conda activate $ENV_VG
 vg convert -g -f -W $GRAPH > $MC_GFA # Get as GFA1.0 MC graph
