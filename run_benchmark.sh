@@ -22,54 +22,49 @@ ENV_CACTUS="apptainer run /projects/genscale/env/cactus_v2.9.9.sif"
 ENV_VG="/projects/genscale/env/vg1.61.0"
 
 #### Paths to files
-FASTA=$1.fa
-PGGB_GFA=$1.pggb.gfa
-MC_GFA=$1.mc.gfa
-MS_GFA=$1.mspangepop.gfa
-COMP_PGGB=$1.ms.pggb.comp.tsv
-COMP_MC=$1.ms.mc.comp.tsv
-PGGB_VCF=$1.pggb.vcf
-MC_VCF=$1.mc.vcf
-MS_VCF=$1.mspangepop.vcf
+FASTA=.fasta
+PGGB_GFA=.pggb.gfa
+MC_GFA=.mc.gfa
+MS_GFA=.mspangepop.gfa
+COMP_PGGB=.ms.pggb.comp.tsv
+COMP_MC=.ms.mc.comp.tsv
+PGGB_VCF=.pggb.vcf
+MC_VCF=.mc.vcf
+MS_VCF=.mspangepop.vcf
 
 . /local/env/envconda.sh
 
 ######################## Simulating pangenome with MSpangepop ########################
 
-echo ">>> Simulating pangenome with MSpangepop"
 conda activate $ENV_MS
 cd MSpangepop/
 #./mspangepop run --unlock
 ./mspangepop local-run 
 cd ..
 conda deactivate
-echo ">>> Moving fasta files"
-for d in "MSpangepop/results/"
-do
-    mv $d/03_graph/chr_1/fasta/* $1_fastas/
-done
 
-######################## Extract the fasta from the simulated graph ########################
-
-#if [ ! -f rs-pancat-paths ]; then
-#    wget https://github.com/dubssieg/rs-pancat-paths/releases/download/0.1.2/rs-pancat-paths
-#    chmod +x rs-pancat-paths
-#fi
-#./rs-pancat-paths $MS_GFA reconstruct > $FASTA
 
 ######################## Index fasta file ########################
-
-echo ">>> Simulating pangenome with MSpangepop"
+mkdir $1
 conda activate $ENV_SAMTOOLS
-for f in $1"_fastas/*.gz"
+for d in MSpangepop/results/*
 do
-    gzip -d $f
+    d="${d%/}"
+    d="${d##*/}"
+    mkdir $1/$d
+    gzip -d MSpangepop/results/$d/03_graph/chr_1/fasta/*
+    mv MSpangepop/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
+    samtools faidx $1/$d/multifasta$FASTA # Index file for PGGB
+    mv MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
 done
+conda deactivate
 
-for f in $1"_fastas/*.fasta"
+######################## Prepping MC files ########################
+
+for d in $1/*
 do
-    mkdir $1"_fastas/"$f"_mc" # Creating a folder for MC
-    awk -v output_dir="${$1"_fastas/"$f"_mc"}" '
+    mkdir $d/singlefasta # Creating a folder for MC
+    awk -v output_dir="${$d"/singlefasta"}" '
     /^>/ {
         seq_id = substr($0, 2);
         if (index(seq_id, " ")) {
@@ -81,13 +76,10 @@ do
         next;
     }
     { print >> file; }
-    ' "${$1"_fastas/"$f}"
-    mkdir $1"_fastas/"$f"_pggb" # Creating a folder for PGGB
-    mv $1"_fastas/"$f $1"_fastas/"$f"_pggb/"$f
-    samtools faidx $1"_fastas/"$f"_pggb/"$f # Index file for PGGB
+    ' "${$d"multifasta"$FASTA}"
+    mkdir $d/.pggb # Creating a folder for PGGB
+    mkdir $d/.mc # Creating a folder for MC
 done
-
-conda deactivate
 
 exit 1
 
