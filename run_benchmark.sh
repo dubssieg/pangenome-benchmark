@@ -64,7 +64,7 @@ conda deactivate
 for d in $1/*
 do
     mkdir $d/singlefasta # Creating a folder for MC
-    awk -v output_dir="${d"/singlefasta"}" '
+    awk -v output_dir="$d/singlefasta" '
     /^>/ {
         seq_id = substr($0, 2);
         if (index(seq_id, " ")) {
@@ -76,7 +76,7 @@ do
         next;
     }
     { print >> file; }
-    ' "${$d"multifasta"$FASTA}"
+    ' "$d"/multifasta"$FASTA"
     mkdir $d/.pggb # Creating a folder for PGGB
     mkdir $d/.mc # Creating a folder for MC
 done
