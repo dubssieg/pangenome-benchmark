@@ -15,7 +15,7 @@
 
 #### Test cleaning
 
-rm -r $1
+[ -d $1 ] && rm -r $1
 
 #### Envs
 
@@ -102,7 +102,7 @@ REPATH=$(cat <<END
 from os import listdir
 with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
     for seq in listdir("$d/singlefasta/"):
-        writer.write(f"{seq[:-3]}\t.seq/{seq}")
+        writer.write(f"{seq[:-6]}\t$d/singlefasta/{seq}\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
