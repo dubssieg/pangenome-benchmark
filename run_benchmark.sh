@@ -36,13 +36,18 @@ MS_VCF=$1.mspangepop.vcf
 
 ######################## Simulating pangenome with MSpangepop ########################
 
+echo ">>> Simulating pangenome with MSpangepop"
 conda activate $ENV_MS
 cd MSpangepop/
 #./mspangepop run --unlock
 ./mspangepop local-run 
 cd ..
 conda deactivate
-mv "MSpangepop/results/"*"/03_graph/chr_1/fasta/"*".fasta.gz" $1_fastas/
+echo ">>> Moving fasta files"
+for d in "MSpangepop/results/"
+do
+    mv $d/03_graph/chr_1/fasta/* $1_fastas/
+done
 
 ######################## Extract the fasta from the simulated graph ########################
 
@@ -54,6 +59,7 @@ mv "MSpangepop/results/"*"/03_graph/chr_1/fasta/"*".fasta.gz" $1_fastas/
 
 ######################## Index fasta file ########################
 
+echo ">>> Simulating pangenome with MSpangepop"
 conda activate $ENV_SAMTOOLS
 for f in $1"_fastas/*.gz"
 do
