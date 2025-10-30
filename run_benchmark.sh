@@ -13,6 +13,10 @@
 ###################################################################
 
 
+#### Test cleaning
+
+rm -rf $1
+
 #### Envs
 
 ENV_MS="/home/genouest/genscale/sdubois/.conda/envs/mspangepop"
@@ -88,7 +92,7 @@ for d in $1/*
 do
     pggb -i $d"/multifasta"$FASTA -o $d"/.pggb" -n 6 -t 8 -p 90 -s 5k 
     conda deactivate
-    mv $d"/.pggb"*.smooth.final.gfa $PGGB_GFA
+    mv $d"/.pggb/"*.smooth.final.gfa $d"/graph"$PGGB_GFA
     [ -d $TMP_PGGB ] && rm -r $TMP_PGGB
 done
 exit 1
