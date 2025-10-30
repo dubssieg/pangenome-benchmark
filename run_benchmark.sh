@@ -133,7 +133,7 @@ conda activate $ENV_VG
 for d in $1/*
 do
     NAME_REF=`cat $d/.mc/tempfile.txt`
-    vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"graph"$MC_GFA # Get as GFA1.0 MC graph
+    vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph"$MC_GFA # Get as GFA1.0 MC graph
     vg deconstruct -a $d/graph$MS_GFA -p $NAME_REF > $d/variants$MS_VCF
     vg deconstruct -a $d/graph$PGGB_GFA -p $NAME_REF > $d/variants$PGGB_VCF
     vg deconstruct -a $d/graph$MC_GFA -p $NAME_REF > $d/variants$MC_VCF
@@ -150,6 +150,6 @@ for d in $1/*
 do
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$PGGB_GFA > $d/dist$COMP_PGGB
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$MC_GFA > $d/dist$COMP_MC
-    [ -d $d"/.pggb" ] && rm -r $d"/.pggb"
-    [ -d $d"/.mc" ] && rm -r $d"/.mc"
+    #[ -d $d"/.pggb" ] && rm -r $d"/.pggb"
+    #[ -d $d"/.mc" ] && rm -r $d"/.mc"
 done
