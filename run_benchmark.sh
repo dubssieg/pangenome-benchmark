@@ -105,7 +105,7 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
         with open(f"$d/singlefasta/{seq}") as f:
             header = f.readline().strip()[1:]
             sample,haplotype = header.split('#')[:-1]
-        writer.write(f"{sample}.{haplotype}\t$d/singlefasta/{seq}\n")
+        writer.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
