@@ -148,13 +148,13 @@ do
     NAME_REF=$p"#0#chr1"
     vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph.tmp"$MC_GFA # Get as GFA1.0 MC graph
     ./rs-pancat-paths $d/graph.tmp$MC_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MC_GFA
-    [ -f $JB ] && rm $d/graph.tmp$MC_GFA
+    [ -f $d/graph.tmp$MC_GFA ] && rm $d/graph.tmp$MC_GFA
     vg convert -g -f -W MSpangepop/results/$p/03_graph/chr_1/*.gfa > $d/graph.tmp$MS_GFA # Get as GFA1.0 MSpangepop graph
     ./rs-pancat-paths $d/graph.tmp$MS_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MS_GFA
-    [ -f $JB ] && rm $d/graph.tmp$MS_GFA
+    [ -f $d/graph.tmp$MS_GFA ] && rm $d/graph.tmp$MS_GFA
     ./rs-pancat-paths $d"/.pggb/"*.smooth.final.gfa rename -r $d"/.mc/rename.txt" > $d"/graph"$PGGB_GFA
-    [ -d $d"/.pggb" ] && rm -r $d"/.pggb"
-    [ -d $d"/.mc" ] && rm -r $d"/.mc"
+    #[ -d $d"/.pggb" ] && rm -r $d"/.pggb"
+    #[ -d $d"/.mc" ] && rm -r $d"/.mc"
     vg deconstruct -a $d/graph$MS_GFA -p $NAME_REF > $d/variants$MS_VCF
     vg deconstruct -a $d/graph$PGGB_GFA -p $NAME_REF > $d/variants$PGGB_VCF
     vg deconstruct -a $d/graph$MC_GFA -p $NAME_REF > $d/variants$MC_VCF
