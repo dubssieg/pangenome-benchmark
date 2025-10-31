@@ -106,9 +106,9 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as pwriter:
                 header = f.readline().strip()[1:]
                 sample,haplotype = header.split('#')[:-1]
             pwriter.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
-            rwriter.write(f"{sample}{haplotype}#0#chr1\t{sample}#{haplotype}#chr1")
-            rwriter.write(f"{sample}{haplotype}#0#chr1#0\t{sample}#{haplotype}#chr1")
-            rwriter.write(f"{sample}#{haplotype}#chr1#0\t{sample}#{haplotype}#chr1")
+            rwriter.write(f"{sample}{haplotype}#0#chr1\t{sample}#{haplotype}#chr1\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr1#0\t{sample}#{haplotype}#chr1\n")
+            rwriter.write(f"{sample}#{haplotype}#chr1#0\t{sample}#{haplotype}#chr1\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
