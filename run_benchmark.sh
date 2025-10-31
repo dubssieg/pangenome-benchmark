@@ -91,21 +91,24 @@ conda activate $ENV_PGGB
 for d in $1/*
 do
     pggb -i $d"/multifasta"$FASTA -o $d"/.pggb" -n 6 -t 8 -p 90 -s 5k 
-    conda deactivate
-    mv $d"/.pggb/"*.smooth.final.gfa $d"/graph"$PGGB_GFA
 done
+conda deactivate
 ######################## Prep MC files ########################
 
 for d in $1/*
 do
 REPATH=$(cat <<END
 from os import listdir
-with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as writer:
-    for seq in listdir("$d/singlefasta/"):
-        with open(f"$d/singlefasta/{seq}") as f:
-            header = f.readline().strip()[1:]
-            sample,haplotype = header.split('#')[:-1]
-        writer.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
+with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as pwriter:
+    with open("$d/.mc/rename.txt","w",encoding='utf-8') as rwriter:
+        for seq in listdir("$d/singlefasta/"):
+            with open(f"$d/singlefasta/{seq}") as f:
+                header = f.readline().strip()[1:]
+                sample,haplotype = header.split('#')[:-1]
+            pwriter.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr1\t{sample}#{haplotype}#chr1")
+            rwriter.write(f"{sample}{haplotype}#0#chr1#0\t{sample}#{haplotype}#chr1")
+            rwriter.write(f"{sample}#{haplotype}#chr1#0\t{sample}#{haplotype}#chr1")
 END
 )
 FILE="$(python3 -c "$REPATH")"
@@ -133,14 +136,25 @@ done
 
 ######################## Convert and VCFs ########################
 
+if [ ! -f rs-pancat-paths ]; then
+    wget https://github.com/dubssieg/rs-pancat-compare/releases/download/0.1.2/rs-pancat-paths
+    chmod +x rs-pancat-paths
+fi
 conda activate $ENV_VG
 for d in $1/*
 do
     p="${d%/}"
     p="${p##*/}"
     NAME_REF=$p"#0#chr1"
-    vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph"$MC_GFA # Get as GFA1.0 MC graph
-    vg convert -g -f -W MSpangepop/results/$p/03_graph/chr_1/*.gfa > $d/graph$MS_GFA # Get as GFA1.0 MSpangepop graph
+    vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph.tmp"$MC_GFA # Get as GFA1.0 MC graph
+    ./rs-pancat-paths rename $d/graph.tmp$MC_GFA -r $d"/.mc/rename.txt" > $d/graph$MC_GFA
+    [ -f $JB ] && rm $d/graph.tmp$MC_GFA
+    vg convert -g -f -W MSpangepop/results/$p/03_graph/chr_1/*.gfa > $d/graph.tmp$MS_GFA # Get as GFA1.0 MSpangepop graph
+    ./rs-pancat-paths rename $d/graph.tmp$MS_GFA -r $d"/.mc/rename.txt" > $d/graph$MS_GFA
+    [ -f $JB ] && rm $d/graph.tmp$MS_GFA
+    ./rs-pancat-paths rename $d"/.pggb/"*.smooth.final.gfa -r $d"/.mc/rename.txt" > $d"/graph"$PGGB_GFA
+    [ -d $d"/.pggb" ] && rm -r $d"/.pggb"
+    [ -d $d"/.mc" ] && rm -r $d"/.mc"
     vg deconstruct -a $d/graph$MS_GFA -p $NAME_REF > $d/variants$MS_VCF
     vg deconstruct -a $d/graph$PGGB_GFA -p $NAME_REF > $d/variants$PGGB_VCF
     vg deconstruct -a $d/graph$MC_GFA -p $NAME_REF > $d/variants$MC_VCF
@@ -157,6 +171,4 @@ for d in $1/*
 do
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$PGGB_GFA > $d/dist$COMP_PGGB
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$MC_GFA > $d/dist$COMP_MC
-    #[ -d $d"/.pggb" ] && rm -r $d"/.pggb"
-    #[ -d $d"/.mc" ] && rm -r $d"/.mc"
 done
