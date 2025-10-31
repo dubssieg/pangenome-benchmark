@@ -59,7 +59,7 @@ do
     gzip -d MSpangepop/results/$d/03_graph/chr_1/fasta/*
     cp MSpangepop/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
     samtools faidx $1/$d/multifasta$FASTA # Index file for PGGB
-    cp MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
+    #cp MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
 done
 conda deactivate
 
@@ -136,8 +136,11 @@ done
 conda activate $ENV_VG
 for d in $1/*
 do
-    NAME_REF=`cat $d/.mc/tempfile.txt`
+    p="${d%/}"
+    p="${p##*/}"
+    NAME_REF=$p"#0#chr1"
     vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph"$MC_GFA # Get as GFA1.0 MC graph
+    vg convert -g -f -W MSpangepop/results/$d/03_graph/chr_1/*.gfa > $d/graph$MS_GFA # Get as GFA1.0 MSpangepop graph
     vg deconstruct -a $d/graph$MS_GFA -p $NAME_REF > $d/variants$MS_VCF
     vg deconstruct -a $d/graph$PGGB_GFA -p $NAME_REF > $d/variants$PGGB_VCF
     vg deconstruct -a $d/graph$MC_GFA -p $NAME_REF > $d/variants$MC_VCF
