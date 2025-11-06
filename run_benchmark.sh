@@ -145,7 +145,7 @@ for d in $1/*
 do
     p="${d%/}"
     p="${p##*/}"
-    NAME_REF=$p"#0#chr1"
+    # Convert the files in GFA1.0 and standardize path names
     vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph.tmp"$MC_GFA # Get as GFA1.0 MC graph
     ./rs-pancat-paths $d/graph.tmp$MC_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MC_GFA
     [ -f $d/graph.tmp$MC_GFA ] && rm $d/graph.tmp$MC_GFA
@@ -153,11 +153,20 @@ do
     ./rs-pancat-paths $d/graph.tmp$MS_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MS_GFA
     [ -f $d/graph.tmp$MS_GFA ] && rm $d/graph.tmp$MS_GFA
     ./rs-pancat-paths $d"/.pggb/"*.smooth.final.gfa rename -r $d"/.mc/rename.txt" > $d"/graph"$PGGB_GFA
-    #[ -d $d"/.pggb" ] && rm -r $d"/.pggb"
-    #[ -d $d"/.mc" ] && rm -r $d"/.mc"
-    vg deconstruct -a $d/graph$MS_GFA -p $NAME_REF > $d/variants$MS_VCF
-    vg deconstruct -a $d/graph$PGGB_GFA -p $NAME_REF > $d/variants$PGGB_VCF
-    vg deconstruct -a $d/graph$MC_GFA -p $NAME_REF > $d/variants$MC_VCF
+    # We extract path name from any graph as they are standardized
+    ./rs-pancat-paths $d/graph.tmp$MS_GFA index > $d/paths.tsv
+    mkdir $d/variants
+    {
+        read
+        while IFS='\t' read -r PathName Length ForwardLength ReverseLength
+        do 
+            vg deconstruct -a $d/graph$MS_GFA -p $PathName'#0' > $d/variants/$PathName$MS_VCF
+            vg deconstruct -a $d/graph$PGGB_GFA -p $PathName'#0' > $d/variants/$PathName$PGGB_VCF
+            vg deconstruct -a $d/graph$MC_GFA -p $PathName'#0' > $d/variants/$PathName$MC_VCF
+        done
+    } < $d"/paths.tsv"
+    [ -d $d"/.pggb" ] && rm -r $d"/.pggb"
+    [ -d $d"/.mc" ] && rm -r $d"/.mc"
 done
 conda deactivate
 
