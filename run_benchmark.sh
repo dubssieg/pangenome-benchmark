@@ -158,7 +158,7 @@ do
     mkdir $d/variants
     {
         read
-        while IFS='\t' read -r PathName Length ForwardLength ReverseLength
+        while IFS=$'\t' read -r PathName Length ForwardLength ReverseLength
         do 
             vg deconstruct -a $d/graph$MS_GFA -p $PathName'#0' > $d/variants/$PathName$MS_VCF
             vg deconstruct -a $d/graph$PGGB_GFA -p $PathName'#0' > $d/variants/$PathName$PGGB_VCF
