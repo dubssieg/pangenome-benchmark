@@ -154,7 +154,7 @@ do
     [ -f $d/graph.tmp$MS_GFA ] && rm $d/graph.tmp$MS_GFA
     ./rs-pancat-paths $d"/.pggb/"*.smooth.final.gfa rename -r $d"/.mc/rename.txt" > $d"/graph"$PGGB_GFA
     # We extract path name from any graph as they are standardized
-    ./rs-pancat-paths $d/graph.tmp$MS_GFA index > $d/paths.tsv
+    ./rs-pancat-paths $d/graph$MS_GFA index > $d/paths.tsv
     mkdir $d/variants
     {
         read
