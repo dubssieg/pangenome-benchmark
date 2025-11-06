@@ -106,9 +106,9 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as pwriter:
                 header = f.readline().strip()[1:]
                 sample,haplotype = header.split('#')[:-1]
             pwriter.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
-            rwriter.write(f"{sample}{haplotype}#0#chr1\t{sample}#chr1#{haplotype}\n")
-            rwriter.write(f"{sample}{haplotype}#0#chr1#0\t{sample}#chr1#{haplotype}\n")
-            rwriter.write(f"{sample}#{haplotype}#chr1#0\t{sample}#chr1#{haplotype}\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr1\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr1#0\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}#{haplotype}#chr1#0\tLN{haplotype}#1#{haplotype}\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
@@ -160,9 +160,9 @@ do
         read
         while IFS=$'\t' read -r PathName Length ForwardLength ReverseLength
         do 
-            vg deconstruct -a $d/graph$MS_GFA -p $PathName'#0' > $d/variants/$PathName$MS_VCF
-            vg deconstruct -a $d/graph$PGGB_GFA -p $PathName'#0' > $d/variants/$PathName$PGGB_VCF
-            vg deconstruct -a $d/graph$MC_GFA -p $PathName'#0' > $d/variants/$PathName$MC_VCF
+            vg deconstruct -a $d/graph$MS_GFA -P $PathName > $d/variants/$PathName$MS_VCF
+            vg deconstruct -a $d/graph$PGGB_GFA -P $PathName > $d/variants/$PathName$PGGB_VCF
+            vg deconstruct -a $d/graph$MC_GFA -P $PathName > $d/variants/$PathName$MC_VCF
         done
     } < $d"/paths.tsv"
     [ -d $d"/.pggb" ] && rm -r $d"/.pggb"
