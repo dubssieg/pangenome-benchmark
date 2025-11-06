@@ -137,7 +137,7 @@ done
 ######################## Convert and VCFs ########################
 
 if [ ! -f rs-pancat-paths ]; then
-    wget https://github.com/dubssieg/rs-pancat-compare/releases/download/0.1.3/rs-pancat-paths
+    wget https://github.com/dubssieg/rs-pancat-paths/releases/download/0.1.3/rs-pancat-paths
     chmod +x rs-pancat-paths
 fi
 conda activate $ENV_VG
