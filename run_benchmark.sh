@@ -107,6 +107,7 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as pwriter:
                 sample,haplotype = header.split('#')[:-1]
             pwriter.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
             rwriter.write(f"{sample}{haplotype}#0#chr1\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}#{haplotype}#chr1\tLN{haplotype}#1#{haplotype}\n")
             rwriter.write(f"{sample}{haplotype}#0#chr1#0\tLN{haplotype}#1#{haplotype}\n")
             rwriter.write(f"{sample}#{haplotype}#chr1#0\tLN{haplotype}#1#{haplotype}\n")
 END
