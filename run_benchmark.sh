@@ -42,7 +42,7 @@ MS_VCF=.mspangepop.vcf
 
 conda activate $ENV_MS
 cd MSpangepop/
-#./mspangepop run --unlock
+./mspangepop run --unlock
 ./mspangepop local-run 
 cd ..
 conda deactivate
