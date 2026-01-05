@@ -20,6 +20,7 @@
 #### Envs
 
 ENV_MS="/home/genouest/genscale/sdubois/.conda/envs/ms_dev"
+ENV_PANCAT="/home/genouest/genscale/sdubois/.conda/envs/pancat"
 ENV_PGGB="/home/genouest/genscale/sdubois/.conda/envs/pggb_v0.7.4"
 ENV_SAMTOOLS="/home/genouest/genscale/sdubois/.conda/envs/samtools"
 ENV_CACTUS="apptainer run /projects/genscale/env/cactus_v2.9.9.sif"
@@ -185,4 +186,6 @@ done
 
 ######################## Compute stats ########################
 
+conda activate $ENV_PANCAT
 python extract_stats.py $1 > $1/$1.csv
+conda deactivate
