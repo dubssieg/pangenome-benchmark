@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=bmMSpp
 #SBATCH --constraint avx2
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=16G
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=256G
 
 
 ###################################################################
@@ -19,7 +19,7 @@
 
 #### Envs
 
-ENV_MS="/home/genouest/genscale/sdubois/.conda/envs/mspangepop"
+ENV_MS="/home/genouest/genscale/sdubois/.conda/envs/ms_dev"
 ENV_PGGB="/home/genouest/genscale/sdubois/.conda/envs/pggb_v0.7.4"
 ENV_SAMTOOLS="/home/genouest/genscale/sdubois/.conda/envs/samtools"
 ENV_CACTUS="apptainer run /projects/genscale/env/cactus_v2.9.9.sif"
@@ -41,7 +41,7 @@ MS_VCF=.mspangepop.vcf
 ######################## Simulating pangenome with MSpangepop ########################
 
 conda activate $ENV_MS
-cd MSpangepop/
+cd MSpangepop_dev/
 ./mspangepop run --unlock
 ./mspangepop local-run 
 cd ..
@@ -51,15 +51,15 @@ conda deactivate
 ######################## Index fasta file ########################
 mkdir $1
 conda activate $ENV_SAMTOOLS
-for d in MSpangepop/results/*
+for d in MSpangepop_dev/results/*
 do
     d="${d%/}"
     d="${d##*/}"
     mkdir $1/$d
-    gzip -d MSpangepop/results/$d/03_graph/chr_1/fasta/*
-    cp MSpangepop/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
+    gzip -d MSpangepop_dev/results/$d/03_graph/chr_1/fasta/*
+    cp MSpangepop_dev/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
     samtools faidx $1/$d/multifasta$FASTA # Index file for PGGB
-    #cp MSpangepop/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
+    #cp MSpangepop_dev/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
 done
 conda deactivate
 
@@ -150,7 +150,7 @@ do
     vg convert -g -f -W $d"/.mc/tmp/final.full.gfa" > $d"/graph.tmp"$MC_GFA # Get as GFA1.0 MC graph
     ./rs-pancat-paths $d/graph.tmp$MC_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MC_GFA
     [ -f $d/graph.tmp$MC_GFA ] && rm $d/graph.tmp$MC_GFA
-    vg convert -g -f -W MSpangepop/results/$p/03_graph/chr_1/*.gfa > $d/graph.tmp$MS_GFA # Get as GFA1.0 MSpangepop graph
+    vg convert -g -f -W MSpangepop_dev/results/$p/03_graph/chr_1/*.gfa > $d/graph.tmp$MS_GFA # Get as GFA1.0 MSpangepop graph
     ./rs-pancat-paths $d/graph.tmp$MS_GFA rename -r $d"/.mc/rename.txt" > $d/graph$MS_GFA
     [ -f $d/graph.tmp$MS_GFA ] && rm $d/graph.tmp$MS_GFA
     ./rs-pancat-paths $d"/.pggb/"*.smooth.final.gfa rename -r $d"/.mc/rename.txt" > $d"/graph"$PGGB_GFA
@@ -182,3 +182,7 @@ do
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$PGGB_GFA > $d/dist$COMP_PGGB
     ./rs-pancat-compare $d/graph$MS_GFA $d/graph$MC_GFA > $d/dist$COMP_MC
 done
+
+######################## Compute stats ########################
+
+python extract_stats.py $1 > $1/$1.csv
