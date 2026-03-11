@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=bmMSpp
 #SBATCH --constraint avx2
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=256G
+#SBATCH --cpus-per-task=16
+#SBATCH --mem=32G
 
 
 ###################################################################
@@ -44,7 +44,7 @@ MS_VCF=.mspangepop.vcf
 conda activate $ENV_MS
 cd MSpangepop_dev/
 ./mspangepop run --unlock
-./mspangepop local-run 
+./mspangepop local-run --configfile $2
 cd ..
 conda deactivate
 
@@ -107,10 +107,10 @@ with open("$d/.mc/pipeline.txt","w",encoding='utf-8') as pwriter:
                 header = f.readline().strip()[1:]
                 sample,haplotype = header.split('#')[:-1]
             pwriter.write(f"{sample}{haplotype}.0\t$d/singlefasta/{seq}\n")
-            rwriter.write(f"{sample}{haplotype}#0#chr1\tLN{haplotype}#1#{haplotype}\n")
-            rwriter.write(f"{sample}#{haplotype}#chr1\tLN{haplotype}#1#{haplotype}\n")
-            rwriter.write(f"{sample}{haplotype}#0#chr1#0\tLN{haplotype}#1#{haplotype}\n")
-            rwriter.write(f"{sample}#{haplotype}#chr1#0\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr_1\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}#{haplotype}#chr_1\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}{haplotype}#0#chr_1#0\tLN{haplotype}#1#{haplotype}\n")
+            rwriter.write(f"{sample}#{haplotype}#chr_1#0\tLN{haplotype}#1#{haplotype}\n")
 END
 )
 FILE="$(python3 -c "$REPATH")"
@@ -171,6 +171,8 @@ do
     [ -d $d"/.mc" ] && rm -r $d"/.mc"
 done
 conda deactivate
+# Deleting MSpangepop files for future run
+[ -d "MSpangepop_dev/results" ] && rm -r MSpangepop_dev/results/*
 
 ######################## Compare the graphs ########################
 
@@ -187,5 +189,10 @@ done
 ######################## Compute stats ########################
 
 conda activate $ENV_PANCAT
-python extract_stats.py $1 > $1/$1.csv
+python scripts/extract_stats.py $1 > $1.csv
+python scripts/number_variants.py $1 > variants_$1.csv
+python scripts/number_nodes.py $1 > nodes_$1.csv
+python scripts/distance.py $1 > distance_$1.csv
+python scripts/analyse_editions.py $1
+python scripts/kmers.py $1 > kmers_$1.csv
 conda deactivate
