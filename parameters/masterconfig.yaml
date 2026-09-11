@@ -1,0 +1,29 @@
+# MSpangepop Simplified Configuration File
+# 
+# This configuration only specifies which models to run and how many times.
+# All simulation parameters and ranges are stored within the demographic model JSON files.
+
+# Simulations to run
+samples:
+  yeastA1e7:
+    model: "simulation_data/yeast_A_1e7.json"
+    replicates: 3
+  yeastB1e7:
+    model: "simulation_data/yeast_B_1e7.json"
+    replicates: 3
+  aspergillusA1e7:
+    model: "simulation_data/aspergillus_A_1e7.json"
+    replicates: 3
+  aspergillusB1e7:
+    model: "simulation_data/aspergillus_B_1e7.json"
+    replicates: 3
+  manulA1e7:
+    model: "simulation_data/manul_A_1e7.json"
+    replicates: 3
+  manulB1e7:
+    model: "simulation_data/manul_B_1e7.json"
+    replicates: 3
+    
+# Global settings
+output_dir: "results/"              # Base directory for all simulation outputs
+memory_multiplier: 1                # Memory scaling factor (increase if OOM errors)

@@ -1,8 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=bmMSpp
 #SBATCH --constraint avx2
 #SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
+#SBATCH --mem=64G
 
 
 ###################################################################
@@ -15,7 +14,7 @@
 
 #### Test cleaning
 
-[ -d $1 ] && rm -r $1
+#[ -d $1 ] && rm -r $1
 
 #### Envs
 
@@ -44,7 +43,7 @@ MS_VCF=.mspangepop.vcf
 conda activate $ENV_MS
 cd MSpangepop_dev/
 ./mspangepop run --unlock
-./mspangepop local-run --configfile $2
+./mspangepop local-run
 cd ..
 conda deactivate
 
@@ -60,7 +59,6 @@ do
     gzip -d MSpangepop_dev/results/$d/03_graph/chr_1/fasta/*
     cp MSpangepop_dev/results/$d/03_graph/chr_1/fasta/* $1/$d/multifasta$FASTA
     samtools faidx $1/$d/multifasta$FASTA # Index file for PGGB
-    #cp MSpangepop_dev/results/$d/03_graph/chr_1/*.gfa $1/$d/graph$MS_GFA
 done
 conda deactivate
 
@@ -172,7 +170,7 @@ do
 done
 conda deactivate
 # Deleting MSpangepop files for future run
-[ -d "MSpangepop_dev/results" ] && rm -r MSpangepop_dev/results/*
+#[ -d "MSpangepop_dev/results" ] && rm -r MSpangepop_dev/results/*
 
 ######################## Compare the graphs ########################
 
